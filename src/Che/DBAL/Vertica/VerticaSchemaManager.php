@@ -28,6 +28,34 @@ use Doctrine\DBAL\Types\Type;
 class VerticaSchemaManager extends PostgreSqlSchemaManager
 {
     /**
+     * {@inheritdoc}
+     */
+    public function listNamespaceNames() {
+        return $this->getSchemaNames();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function _getPortableSequencesList($sequences)
+    {
+        $sequenceDefinitions = array();
+
+        foreach ($sequences as $sequence) {
+            $sequenceName = $sequence['sequence_name'];
+            $sequenceDefinitions[$sequenceName] = $sequence;
+        }
+
+        $list = array();
+
+        foreach ($this->filterAssetNames(array_keys($sequenceDefinitions)) as $sequenceName) {
+            $list[] = $this->_getPortableSequenceDefinition($sequenceDefinitions[$sequenceName]);
+        }
+
+        return $list;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getSchemaNames()
